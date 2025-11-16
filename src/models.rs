@@ -73,6 +73,26 @@ pub enum Part {
         #[serde(rename = "functionResponse")]
         function_response: super::tools::FunctionResponse,
     },
+    FileData {
+        #[serde(rename = "fileData")]
+        file_data: FileData,
+    },
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct FileData {
+    mime_type: String,
+    file_uri: String,
+}
+
+impl FileData {
+    pub fn new(mime_type: impl Into<String>, file_uri: impl Into<String>) -> Self {
+        Self {
+            mime_type: mime_type.into(),
+            file_uri: file_uri.into(),
+        }
+    }
 }
 
 /// Blob for a message part
@@ -199,6 +219,26 @@ impl Content {
             parts: Some(vec![Part::InlineData {
                 inline_data: Blob::new(mime_type, data),
             }]),
+            role: None,
+        }
+    }
+
+    pub fn text_with_file(
+        text: impl Into<String>,
+        mime_type: impl Into<String>,
+        file_uri: impl Into<String>,
+    ) -> Self {
+        Self {
+            parts: Some(vec![
+                Part::Text {
+                    text: text.into(),
+                    thought: None,
+                    thought_signature: None,
+                },
+                Part::FileData {
+                    file_data: FileData::new(mime_type, file_uri),
+                },
+            ]),
             role: None,
         }
     }

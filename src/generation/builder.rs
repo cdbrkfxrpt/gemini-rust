@@ -61,6 +61,22 @@ impl ContentBuilder {
         self
     }
 
+    /// Add a user message, together with coordinates for a previously uploaded file.
+    ///
+    /// Uploading a file and using it avoids encoding large files and sending them, in particular
+    /// when this would need to happen more than once with a file.
+    pub fn with_user_message_and_file(
+        mut self,
+        text: impl Into<String>,
+        file_uri: &url::Url,
+        mime_type: impl Into<String>,
+    ) -> Self {
+        let content =
+            Content::text_with_file(text, mime_type, file_uri.to_string()).with_role(Role::User);
+        self.contents.push(content);
+        self
+    }
+
     /// Adds a model message to the conversation history.
     pub fn with_model_message(mut self, text: impl Into<String>) -> Self {
         let message = Message::model(text);
